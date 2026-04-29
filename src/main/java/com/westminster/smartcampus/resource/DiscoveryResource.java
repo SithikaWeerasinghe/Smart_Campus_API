@@ -21,7 +21,7 @@ public class DiscoveryResource {
 
         Map<String, String> maintainer = new LinkedHashMap<>();
         maintainer.put("name", "Sithika Weerasinghe");
-        maintainer.put("email", "YOUR_EMAIL_HERE");
+        maintainer.put("email", "sithika.20242022@iit.ac.lk");
         response.put("maintainer", maintainer);
 
         Map<String, String> endpoints = new LinkedHashMap<>();
