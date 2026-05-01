@@ -275,11 +275,12 @@ curl -X GET http://localhost:8080/SmartCampusAPI/api/v1/debug/error
 
 #### 1. Question: In your report, explain the default lifecycle of a JAX-RS Resource class. Is a new instance instantiated for every incoming request, or does the runtime treat it as a singleton? Elaborate on how this architectural decision impacts the way you manage and synchronize your in-memory data structures $(maps/lists)$ to prevent data loss or race conditions.
 
-In JAX-RS, resource classes are generally request-scoped by default. This means the runtime usually creates a fresh instance of the resource class for each incoming request. This is useful because it reduces the risk of accidentally sharing mutable state between requests inside the resource class itself. However, in this coursework the actual application data is stored in shared in-memory collections inside a central DataStore, so concurrency still needs attention. Operations such as adding rooms, registering sensors, deleting rooms, and storing readings must be handled carefully to avoid race conditions and inconsistent updates to shared HashMap and ArrayList collections.
+By default, the resource classes of JAX-RS are request-scoped. That is, the runtime typically instantiates a new resource class instance for every request. This is good because it helps to avoid accidentally sharing mutable data between requests within the resource class. But in this coursework the application data is held in shared in-memory collections in a central DataStore, so concurrency is still important. The addition of new rooms, registration of sensors, removal of rooms and storing of readings needs to be carefully handled to avoid race conditions and inconsistent updates to the shared HashMap and ArrayList data structures. 
+
 
 #### 2. Question: Why is the provision of ”Hypermedia” (links and navigation within responses) considered a hallmark of advanced RESTful design (HATEOAS)? How does this approach benefit client developers compared to static documentation?
 
-Hypermedia improves RESTful design because it allows the API response itself to guide the client toward available resources and actions. Instead of depending entirely on separate documentation, the client can inspect the response and discover relevant links directly. In this project, the discovery endpoint includes links to the main resources such as rooms and sensors. This makes the API easier to navigate, easier to test, and more adaptable if additional endpoints are introduced later.
+Hypermedia enhances a RESTful design by enabling the API response to guide the client towards resources and actions. The client can look at the response and find out about the links, rather than relying solely on documentation. In this case, the discovery endpoint contains links to the main resources (rooms and sensors). This simplifies the API navigation, its testing, and allows it to evolve over time with additional endpoints.
 
 ---
 
@@ -287,11 +288,11 @@ Hypermedia improves RESTful design because it allows the API response itself to 
 
 #### 1.  Question: When returning a list of rooms, what are the implications of returning only IDs versus returning the full room objects? Consider network bandwidth and client side processing.
 
-Returning only room IDs reduces the response size and can save network bandwidth, especially when large numbers of rooms are involved. However, this approach may require the client to make additional requests to retrieve detailed information for a specific room. Returning full room objects is more convenient because the client receives all the useful metadata immediately. In this project, full room objects are returned because they improve clarity and usability while keeping the payload size manageable for the coursework scale.
+Sending back only the room IDs keeps the response size small and is bandwidth efficient, particularly with many rooms. But it can require the client to make another request to get more information about a room. Sending full room objects is more convenient as all the useful information will be contained in the response. In this project, we return full room objects because it makes the code more readable and useful, while keeping the size of the response reasonable for the size of the project.
 
 #### 2. Question: Is the DELETE operation idempotent in your implementation? Provide a detailed justification by describing what happens if a client mistakenly sends the exact same DELETE request for a room multiple times.
 
-Yes, DELETE is idempotent in this implementation. When the client sends a DELETE request for a room the first time, the room is removed successfully. If the exact same request is sent again, the room no longer exists, so the API returns 404 Not Found. Although the second response is different, the important point is that the repeated request does not continue changing the state of the system, which preserves idempotent behaviour.
+yes,The DELETE method is idempotent in this case. When the client issues a DELETE request for a room (the first time), the room is deleted. The second time, the room has already been removed, so we send a 404 Not Found response. While the second response is different, the crucial thing is that the second request does not continue to alter the system's state, which maintains idempotent behaviour.
 
 ---
 
